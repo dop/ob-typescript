@@ -33,6 +33,7 @@
 
 ;;; Code:
 (require 'ob)
+(require 'seq)
 ;;(require 'ob-ref)
 ;;(require 'ob-comint)
 ;;(require 'ob-eval)
@@ -49,12 +50,16 @@
 specifying a var of the same value."
   (format "%S" var))
 
+(defun org-babel-typescript--get-vars (params)
+  (seq-map #'cdr (seq-filter (lambda (el) (eq ':var (car el))) params)))
+
 ;; This function expands the body of a source code block by doing
 ;; things like prepending argument definitions to the body, it should
 ;; be called by the `org-babel-execute:typescript' function below.
 (defun org-babel-expand-body:typescript (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
-  (let ((vars (nth 1 (or processed-params (org-babel-process-params params)))))
+  (let ((vars (org-babel-typescript--get-vars
+               (or processed-params (org-babel-process-params params)))))
     (concat
      (mapconcat ;; define any variables
       (lambda (pair)
